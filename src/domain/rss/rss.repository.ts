@@ -10,12 +10,12 @@ export class RssRepository {
     return this.prisma.torrent.findMany({
       take: limit,
       where: termWithoutSeason ? { title: { contains: termWithoutSeason, mode: 'insensitive' } } : undefined,
-      orderBy: { pubDate: 'desc' },
+      orderBy: { id: 'desc' },
     })
   }
 
   async listAll() {
-    return this.prisma.torrent.findMany({ take: 100, orderBy: { pubDate: 'desc' } })
+    return this.prisma.torrent.findMany({ take: 100, orderBy: { id: 'desc' } })
   }
 
   async count() {

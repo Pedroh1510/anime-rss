@@ -64,17 +64,21 @@ export class RssService {
   private async buildItems(response: any[]) {
     const host = this.config.get('host', 'localhost')
     const port = this.config.get('port', 3033)
+    const results = await Promise.allSettled(
+      response.map(async (item) => ({
+        ...item,
+        page: `http://${host}:${port}/${item.id}`,
+        id: await this.torrentService.magnetInfo(item.magnet),
+        title: this.formatTitle(item),
+      }))
+    )
+
     const items = []
-    for (const item of response) {
-      try {
-        items.push({
-          ...item,
-          page: `http://${host}:${port}/${item.id}`,
-          id: await this.torrentService.magnetInfo(item.magnet),
-          title: this.formatTitle(item),
-        })
-      } catch (error) {
-        this.logger.warn(`buildItems error: ${(error as Error)?.message}`)
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        items.push(result.value)
+      } else {
+        this.logger.warn(`buildItems error: ${(result.reason as Error)?.message}`)
       }
     }
     return items
