@@ -3,6 +3,7 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci --silent
+RUN npm run rebuild:approved
 
 COPY prisma ./prisma/
 RUN npx prisma generate
@@ -17,6 +18,7 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci --omit=dev --silent
+RUN npm run rebuild:approved
 
 COPY prisma ./prisma/
 RUN npx prisma generate

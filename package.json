@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "a.js",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11.0.0"
+  },
   "scripts": {
     "services:up": "docker compose -f src/infra/docker/compose.yml up -d",
     "services:down": "docker compose -f src/infra/docker/compose.yml down",
+    "rebuild:approved": "npm rebuild @nestjs/core @prisma/client @prisma/engines prisma protobufjs unrs-resolver msgpackr-extract --foreground-scripts --ignore-scripts=false",
     "lint": "eslint . --fix",
     "migration:push": "npx dotenv -e .env.development -- npx prisma db push",
     "docker:push": "docker buildx build --push -t pedroh1510/rss:latest .",
@@ -19,6 +24,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "overrides": {
+    "deepmerge-ts": "^8.0.0"
+  },
   "dependencies": {
     "@bull-board/api": "^6.20.6",
     "@bull-board/express": "^6.20.6",

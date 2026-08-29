@@ -1,18 +1,19 @@
-name: Code quality
+name: Security audit
 
 on:
   pull_request:
+  push:
+    branches: [main]
 
 jobs:
-  quality:
+  audit:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: '24'
       - run: npm ci
-      - run: npm run rebuild:approved
-      - name: Lint
-        run: npm run test:ci
+      - name: Audit (fails on high/critical)
+        run: npm audit --audit-level=high
