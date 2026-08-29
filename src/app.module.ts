@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq';
-import { DatabaseModule } from './infra/database/database.module';
-import { StatusModule } from './domain/status/status.module';
-import { ExtractorModule } from './domain/extractor/extractor.module';
-import { SharedModule } from './domain/shared/shared.module';
-import { RssModule } from './domain/rss/rss.module';
-import { AdmModule } from './domain/adm/adm.module';
-import { JobsModule } from './jobs/jobs.module';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { BullModule } from '@nestjs/bullmq'
+import { DatabaseModule } from './infra/database/database.module'
+import { StatusModule } from './domain/status/status.module'
+import { ExtractorModule } from './domain/extractor/extractor.module'
+import { SharedModule } from './domain/shared/shared.module'
+import { RssModule } from './domain/rss/rss.module'
+import { AdmModule } from './domain/adm/adm.module'
+import { TorznabModule } from './domain/torznab/torznab.module'
+import { JobsModule } from './jobs/jobs.module'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JobsModule } from './jobs/jobs.module';
     ExtractorModule,
     RssModule,
     AdmModule,
+    TorznabModule,
     JobsModule,
   ],
 })
