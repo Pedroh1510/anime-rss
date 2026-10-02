@@ -30,7 +30,7 @@
   "dependencies": {
     "@bull-board/api": "^6.20.6",
     "@bull-board/express": "^6.20.6",
-    "@ctrl/qbittorrent": "^9.11.2",
+    "@ctrl/qbittorrent": "^9.16.0",
     "@json2csv/node": "^7.0.6",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.1.17",
