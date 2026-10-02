@@ -13,5 +13,6 @@ jobs:
         with:
           node-version: "24"
       - run: npm ci
+      - run: npm run rebuild:approved
       - name: Lint
         run: npm run test:ci
