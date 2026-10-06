@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../infra/database/prisma.service'
 
 @Injectable()
@@ -20,5 +21,18 @@ export class RssRepository {
 
   async count() {
     return this.prisma.torrent.count({})
+  }
+
+  // The unique index on Torrent.title is what serializes concurrent creates:
+  // the loser gets P2002, mapped to 409.
+  async create(data: { title: string; magnet: string; pubDate: Date }) {
+    try {
+      return await this.prisma.torrent.create({ data })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new ConflictException(`Torrent with title ${data.title} already exists`)
+      }
+      throw error
+    }
   }
 }

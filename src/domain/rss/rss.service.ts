@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { XmlService } from '../shared/xml.service'
 import { TorrentService } from '../shared/torrent.service'
@@ -59,6 +59,19 @@ export class RssService {
 
   async count() {
     return { total: await this.repository.count() }
+  }
+
+  /**
+   * Adds a manual item to the feed. The magnet goes through the same parser
+   * buildItems uses, because an unparseable magnet would be dropped from the
+   * feed silently.
+   * @example await rssService.create({ title: 'Frieren - 01', magnet: 'magnet:?xt=urn:btih:...' })
+   */
+  async create({ title, magnet }: { title: string; magnet: string }) {
+    await this.torrentService.magnetInfo(magnet).catch(() => {
+      throw new BadRequestException(`Invalid magnet link: ${magnet}`)
+    })
+    return this.repository.create({ title, magnet, pubDate: new Date() })
   }
 
   private async buildItems(response: any[]) {

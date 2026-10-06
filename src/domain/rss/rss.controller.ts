@@ -1,7 +1,8 @@
-import { Controller, Get, Header, Query, Res } from '@nestjs/common'
+import { Body, Controller, Get, Header, Post, Query, Res } from '@nestjs/common'
 import { ApiQuery, ApiTags } from '@nestjs/swagger'
 import { Response } from 'express'
 import { RssService } from './rss.service'
+import { CreateRssItemDto } from './dto/create-rss-item.dto'
 
 @ApiTags('RSS')
 @Controller('rss')
@@ -37,5 +38,10 @@ export class RssController {
   @Get('amount')
   async count() {
     return this.rssService.count()
+  }
+
+  @Post()
+  async create(@Body() body: CreateRssItemDto) {
+    return this.rssService.create({ title: body.title, magnet: body.magnet })
   }
 }

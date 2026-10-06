@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
 import { RssService } from './rss.service'
@@ -10,6 +11,7 @@ const makeRssRepo = () => ({
   list: jest.fn().mockResolvedValue([]),
   listAll: jest.fn().mockResolvedValue([]),
   count: jest.fn().mockResolvedValue(0),
+  create: jest.fn(),
 })
 
 const makeScanJobService = () => ({
@@ -147,6 +149,36 @@ describe('RssService', () => {
       ;(xmlService.buildToRss as jest.Mock).mockReturnValue('<rss><item/></rss>')
       const result = await service.listAsXml({ isScan: false })
       expect(result).toBe('<rss><item/></rss>')
+    })
+  })
+
+  describe('create', () => {
+    const magnet = `magnet:?xt=urn:btih:${'a'.repeat(40)}`
+
+    afterEach(() => jest.useRealTimers())
+
+    it('create grava pubDate com o instante da requisição', async () => {
+      jest.useFakeTimers().setSystemTime(Date.parse('2026-10-05T12:00:00Z'))
+      const { service, repository } = await buildModule()
+      const row = { id: 3, title: 'Frieren', magnet, pubDate: new Date('2026-10-05T12:00:00Z') }
+      ;(repository.create as jest.Mock).mockResolvedValue(row)
+
+      await expect(service.create({ title: 'Frieren', magnet })).resolves.toEqual(row)
+      expect(repository.create).toHaveBeenCalledWith({
+        title: 'Frieren',
+        magnet,
+        pubDate: new Date('2026-10-05T12:00:00Z'),
+      })
+    })
+
+    it('create rejeita magnet que magnetInfo não interpreta', async () => {
+      const torrentService = { magnetInfo: jest.fn().mockRejectedValue(new Error('bad')) }
+      const { service, repository } = await buildModule({ torrentService })
+
+      const error = await service.create({ title: 'Frieren', magnet }).catch((e) => e)
+      expect(error).toBeInstanceOf(BadRequestException)
+      expect(error.message).toEqual(`Invalid magnet link: ${magnet}`)
+      expect(repository.create).not.toHaveBeenCalled()
     })
   })
 })

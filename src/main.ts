@@ -1,18 +1,18 @@
 import 'reflect-metadata'
 import { NestFactory } from '@nestjs/core'
-import { ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { createBullBoard } from '@bull-board/api'
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { ExpressAdapter } from '@bull-board/express'
 import { Queue } from 'bullmq'
 import { AppModule } from './app.module'
+import { applyGlobalPipes } from './app.setup'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
   app.enableCors({ origin: '*' })
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
+  applyGlobalPipes(app)
 
   const swaggerConfig = new DocumentBuilder().setTitle('Media Server API').setVersion('1.0').build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
