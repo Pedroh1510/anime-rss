@@ -9,6 +9,7 @@ import { RssModule } from './domain/rss/rss.module'
 import { AdmModule } from './domain/adm/adm.module'
 import { TorznabModule } from './domain/torznab/torznab.module'
 import { JobsModule } from './jobs/jobs.module'
+import { QueuesModule } from './domain/queues/queues.module'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { JobsModule } from './jobs/jobs.module'
     AdmModule,
     TorznabModule,
     JobsModule,
+    QueuesModule,
   ],
 })
 export class AppModule {}
