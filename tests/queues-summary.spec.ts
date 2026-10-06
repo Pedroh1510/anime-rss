@@ -1,31 +1,42 @@
 import request from 'supertest'
 import { Test } from '@nestjs/testing'
 import { INestApplication, ServiceUnavailableException } from '@nestjs/common'
+import { getQueueToken } from '@nestjs/bullmq'
 import { QueuesSummaryController } from '../src/domain/queues/queues-summary.controller'
 import { QueuesSummaryService } from '../src/domain/queues/queues-summary.service'
 
-const COUNTS = { active: 0, waiting: 1, delayed: 2, failed: 0, completed: 5, paused: 0 }
-const SUMMARY = ['Adm Anime', 'Anime process', 'Scan process'].map((name) => ({ name, counts: COUNTS }))
+import { QUEUE_NAMES } from '../src/domain/queues/queue-names'
 
-const mockQueuesSummaryService = { summarize: jest.fn() }
+// Like BullMQ, answers only the job types it is asked for.
+class FakeQueue {
+  constructor(readonly name: string) {}
+
+  async getJobCounts(...types: string[]) {
+    return Object.fromEntries(types.map((type, index) => [type, index]))
+  }
+}
 
 describe('QueuesSummaryController (integration)', () => {
   let app: INestApplication
+  let service: QueuesSummaryService
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       controllers: [QueuesSummaryController],
-      providers: [{ provide: QueuesSummaryService, useValue: mockQueuesSummaryService }],
+      providers: [
+        QueuesSummaryService,
+        ...QUEUE_NAMES.map((name) => ({ provide: getQueueToken(name), useValue: new FakeQueue(name) })),
+      ],
     }).compile()
     app = module.createNestApplication()
+    service = module.get(QueuesSummaryService)
     await app.init()
   })
 
   afterAll(() => app.close())
+  afterEach(() => jest.restoreAllMocks())
 
   it('GET /queues-summary retorna as contagens das 3 filas', async () => {
-    mockQueuesSummaryService.summarize.mockResolvedValue(SUMMARY)
-
     const response = await request(app.getHttpServer()).get('/queues-summary').expect(200)
 
     expect(response.body.map((item: { name: string }) => item.name)).toEqual([
@@ -42,7 +53,9 @@ describe('QueuesSummaryController (integration)', () => {
   })
 
   it('GET /queues-summary retorna 503 quando o Redis não responde', async () => {
-    mockQueuesSummaryService.summarize.mockRejectedValue(new ServiceUnavailableException('Queue backend unavailable'))
+    jest
+      .spyOn(service, 'summarize')
+      .mockRejectedValue(new ServiceUnavailableException('Queue backend unavailable'))
 
     await request(app.getHttpServer())
       .get('/queues-summary')

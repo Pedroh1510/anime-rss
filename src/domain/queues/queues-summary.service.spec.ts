@@ -16,9 +16,11 @@ class FakeQueue {
   readonly pause = jest.fn()
   readonly resume = jest.fn()
 
+  // Like BullMQ, answers only the job types it is asked for.
   constructor(
     readonly name: string,
-    getJobCounts: () => Promise<unknown> = () => Promise.resolve(COUNTS)
+    getJobCounts: (...types: string[]) => Promise<unknown> = (...types) =>
+      Promise.resolve(Object.fromEntries(types.map((type) => [type, COUNTS[type as keyof typeof COUNTS] ?? 0])))
   ) {
     this.getJobCounts = jest.fn(getJobCounts)
   }
@@ -46,6 +48,23 @@ describe('QueuesSummaryService', () => {
 
     expect(summary.map((item) => item.name)).toEqual(['Adm Anime', 'Anime process', 'Scan process'])
     expect(summary[0].counts).toEqual(COUNTS)
+  })
+
+  it('pede exatamente as 6 contagens do contrato', async () => {
+    const { service, queues } = await buildService()
+
+    await service.summarize()
+
+    for (const queue of Object.values(queues)) {
+      expect([...queue.getJobCounts.mock.calls[0]].sort()).toEqual([
+        'active',
+        'completed',
+        'delayed',
+        'failed',
+        'paused',
+        'waiting',
+      ])
+    }
   })
 
   it('rejeita quando getJobCounts não responde em 3000ms', async () => {
