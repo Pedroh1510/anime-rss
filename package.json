@@ -25,7 +25,10 @@
   "author": "",
   "license": "ISC",
   "overrides": {
-    "deepmerge-ts": "^8.0.0"
+    "deepmerge-ts": "^8.0.0",
+    "@nestjs/swagger": {
+      "js-yaml": "4.3.2"
+    }
   },
   "dependencies": {
     "@bull-board/api": "^6.20.6",
