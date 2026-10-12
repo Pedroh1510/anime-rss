@@ -12,7 +12,7 @@
     "services:down": "docker compose -f src/infra/docker/compose.yml down",
     "rebuild:approved": "npm rebuild @nestjs/core @prisma/client @prisma/engines prisma protobufjs unrs-resolver msgpackr-extract --foreground-scripts --ignore-scripts=false",
     "lint": "eslint . --fix",
-    "lint:ci": "eslint .",
+    "lint:ci": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json",
     "migration:push": "npx dotenv -e .env.development -- npx prisma db push",
     "docker:push": "docker buildx build --push -t pedroh1510/rss:latest .",
