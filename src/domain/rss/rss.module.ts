@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
-import { RssController } from './rss.controller';
-import { RssService } from './rss.service';
-import { RssRepository } from './rss.repository';
-import { ExtractorModule } from '../extractor/extractor.module';
+import { Module } from '@nestjs/common'
+
+import { ExtractorModule } from '../extractor/extractor.module'
+import { RssController } from './rss.controller'
+import { RssRepository } from './rss.repository'
+import { RssService } from './rss.service'
 
 @Module({
   imports: [ExtractorModule],

@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
-import { BittorrentService } from './bittorrent.service';
+import { Module } from '@nestjs/common'
+
+import { BittorrentService } from './bittorrent.service'
 
 @Module({
   providers: [BittorrentService],

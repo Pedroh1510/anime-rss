@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { TorznabRepository } from './torznab.repository'
+
 import { PrismaService } from '../../infra/database/prisma.service'
+import { TorznabRepository } from './torznab.repository'
 
 const makePrismaMock = () => ({
   torrent: { findMany: jest.fn().mockResolvedValue([]), count: jest.fn().mockResolvedValue(0) },

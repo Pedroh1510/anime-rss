@@ -1,8 +1,9 @@
-import { Test } from '@nestjs/testing'
 import { getQueueToken } from '@nestjs/bullmq'
 import { ServiceUnavailableException } from '@nestjs/common'
-import { QueuesSummaryService } from './queues-summary.service'
+import { Test } from '@nestjs/testing'
+
 import { QUEUE_NAMES } from './queue-names'
+import { QueuesSummaryService } from './queues-summary.service'
 
 const COUNTS = { active: 1, waiting: 2, delayed: 0, failed: 3, completed: 4, paused: 0 }
 

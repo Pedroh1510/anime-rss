@@ -1,6 +1,7 @@
-import request from 'supertest'
-import { Test } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
+import { Test } from '@nestjs/testing'
+import request from 'supertest'
+
 import { TorznabController } from '../src/domain/torznab/torznab.controller'
 import { TorznabService } from '../src/domain/torznab/torznab.service'
 

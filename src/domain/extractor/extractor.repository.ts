@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../infra/database/prisma.service';
+import { Injectable } from '@nestjs/common'
+
+import { PrismaService } from '../../infra/database/prisma.service'
 
 @Injectable()
 export class ExtractorRepository {
@@ -12,13 +13,13 @@ export class ExtractorRepository {
         create: { magnet: item.link, title: item.title, pubDate: item.date },
         update: {},
       })
-      .catch(() => {});
+      .catch(() => {})
   }
 
   async listTags() {
     return {
       accepted: await this.prisma.acceptedTags.findMany({ select: { tag: true } }),
       verify: await this.prisma.verifyTags.findMany({ select: { tag: true } }),
-    };
+    }
   }
 }

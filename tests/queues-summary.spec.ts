@@ -1,11 +1,11 @@
-import request from 'supertest'
-import { Test } from '@nestjs/testing'
-import { INestApplication, ServiceUnavailableException } from '@nestjs/common'
 import { getQueueToken } from '@nestjs/bullmq'
-import { QueuesSummaryController } from '../src/domain/queues/queues-summary.controller'
-import { QueuesSummaryService } from '../src/domain/queues/queues-summary.service'
+import { INestApplication, ServiceUnavailableException } from '@nestjs/common'
+import { Test } from '@nestjs/testing'
+import request from 'supertest'
 
 import { QUEUE_NAMES } from '../src/domain/queues/queue-names'
+import { QueuesSummaryController } from '../src/domain/queues/queues-summary.controller'
+import { QueuesSummaryService } from '../src/domain/queues/queues-summary.service'
 
 // Like BullMQ, answers only the job types it is asked for.
 class FakeQueue {
@@ -53,9 +53,7 @@ describe('QueuesSummaryController (integration)', () => {
   })
 
   it('GET /queues-summary retorna 503 quando o Redis não responde', async () => {
-    jest
-      .spyOn(service, 'summarize')
-      .mockRejectedValue(new ServiceUnavailableException('Queue backend unavailable'))
+    jest.spyOn(service, 'summarize').mockRejectedValue(new ServiceUnavailableException('Queue backend unavailable'))
 
     await request(app.getHttpServer())
       .get('/queues-summary')

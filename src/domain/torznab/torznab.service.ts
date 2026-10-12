@@ -1,9 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import XMLBuilder from 'fast-xml-builder'
+
 import { DateFormatter } from '../../utils/date-formatter'
-import { TorznabRepository } from './torznab.repository'
-import { TorznabQuery, TorrentRecord } from './torznab.types'
 import {
   CATEGORY_ANIME,
   CATEGORY_TV,
@@ -13,6 +12,8 @@ import {
   FAKE_SIZE_BYTES,
   MAX_LIMIT,
 } from './torznab.constants'
+import { TorznabRepository } from './torznab.repository'
+import { TorznabQuery, TorrentRecord } from './torznab.types'
 
 @Injectable()
 export class TorznabService {

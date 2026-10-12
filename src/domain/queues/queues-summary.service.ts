@@ -1,5 +1,5 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bullmq'
+import { Injectable, ServiceUnavailableException } from '@nestjs/common'
 import { JobType, Queue } from 'bullmq'
 
 const COUNT_TYPES: JobType[] = ['active', 'waiting', 'delayed', 'failed', 'completed', 'paused']

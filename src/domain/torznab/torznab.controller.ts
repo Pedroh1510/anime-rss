@@ -1,6 +1,7 @@
 import { Controller, Get, Header, Query, Res } from '@nestjs/common'
 import { ApiQuery, ApiTags } from '@nestjs/swagger'
 import { Response } from 'express'
+
 import { TorznabService } from './torznab.service'
 
 @ApiTags('Torznab')

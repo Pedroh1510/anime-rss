@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import axios from 'axios'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+
 // const { default: parseTorrent, toMagnetURI } = require('parse-torrent') as {
 //   default: (input: any) => Promise<any>;
 //   toMagnetURI: (input: any) => string;

@@ -1,10 +1,11 @@
+import { ConflictException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { RssRepository } from './rss.repository'
+import { Prisma } from '@prisma/client'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { ConflictException } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+
 import { PrismaService } from '../../infra/database/prisma.service'
+import { RssRepository } from './rss.repository'
 
 const makePrismaMock = () => ({
   torrent: {

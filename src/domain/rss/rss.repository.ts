@@ -1,5 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+
 import { PrismaService } from '../../infra/database/prisma.service'
 
 @Injectable()
