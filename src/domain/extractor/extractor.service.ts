@@ -75,7 +75,8 @@ export class ExtractorService {
       erai: () => this.eraiService.extractor(),
       n8n: () => this.n8nService.extractor(),
     }
-    const extractor = fromTo[site]
+    // Own keys only: `site` comes from the request, and inherited names like `constructor` would resolve too.
+    const extractor = Object.hasOwn(fromTo, site) ? fromTo[site] : undefined
     if (!extractor) throw new Error('Site not supported or invalid method')
     return this.executeExtractor(() => extractor())
   }
