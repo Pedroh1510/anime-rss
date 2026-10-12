@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
-import { TorznabService } from './torznab.service'
+import { Test, TestingModule } from '@nestjs/testing'
+
 import { TorznabRepository } from './torznab.repository'
+import { TorznabService } from './torznab.service'
 
 const makeRepository = () => ({
   search: jest.fn().mockResolvedValue([]),

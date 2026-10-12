@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { PassThrough, Readable, Writable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
+
 import { BittorrentService } from '../../infra/service/bittorrent.service'
 import { DateFormatter } from '../../utils/date-formatter'
-import { CsvService } from '../shared/csv.service'
 import { ScanTtlRepository } from '../extractor/repository/scan-ttl.repository'
+import { CsvService } from '../shared/csv.service'
 import { AdmRepository } from './adm.repository'
 
 @Injectable()

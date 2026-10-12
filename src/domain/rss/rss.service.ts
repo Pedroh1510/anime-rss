@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { XmlService } from '../shared/xml.service'
-import { TorrentService } from '../shared/torrent.service'
+
 import { ScanJobService } from '../extractor/scan-job.service'
+import { TorrentService } from '../shared/torrent.service'
+import { XmlService } from '../shared/xml.service'
 import { RssRepository } from './rss.repository'
 
 @Injectable()

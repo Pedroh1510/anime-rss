@@ -1,5 +1,5 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bullmq'
+import { Injectable, ServiceUnavailableException } from '@nestjs/common'
 import { JobType, Queue } from 'bullmq'
 
 const COUNT_TYPES: JobType[] = ['active', 'waiting', 'delayed', 'failed', 'completed', 'paused']
@@ -30,7 +30,7 @@ export class QueuesSummaryService {
    */
   async summarize(): Promise<QueueSummary[]> {
     let timer: NodeJS.Timeout
-    const timeout = new Promise<never>((_, reject) => {
+    const timeout = new Promise<never>((_resolve, reject) => {
       timer = setTimeout(() => reject(new ServiceUnavailableException('Queue backend unavailable')), SUMMARY_TIMEOUT_MS)
     })
     try {

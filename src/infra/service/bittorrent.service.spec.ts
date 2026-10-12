@@ -1,5 +1,6 @@
-import { Test } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
+import { Test } from '@nestjs/testing'
+
 import { BittorrentService } from './bittorrent.service'
 
 const makeClient = () => ({

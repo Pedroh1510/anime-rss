@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bullmq'
-import { Queue } from 'bullmq'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Queue } from 'bullmq'
+
 import { ScanTtlRepository } from './repository/scan-ttl.repository'
 
 function isWithinTtl(lastScan: string, ttlMinutes: number): boolean {

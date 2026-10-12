@@ -1,9 +1,10 @@
-import request from 'supertest'
-import { Test } from '@nestjs/testing'
 import { ConflictException, INestApplication } from '@nestjs/common'
+import { Test } from '@nestjs/testing'
+import request from 'supertest'
+
+import { applyGlobalPipes } from '../src/app.setup'
 import { RssController } from '../src/domain/rss/rss.controller'
 import { RssService } from '../src/domain/rss/rss.service'
-import { applyGlobalPipes } from '../src/app.setup'
 
 const mockRssService = {
   listAsXml: jest.fn().mockResolvedValue('<rss/>'),
@@ -33,19 +34,13 @@ describe('RssController (integration)', () => {
 
   describe('GET /rss', () => {
     it('retorna 200 com Content-Type application/xml', async () => {
-      await request(app.getHttpServer())
-        .get('/rss')
-        .expect(200)
-        .expect('Content-Type', /xml/)
-        .expect('<rss/>')
+      await request(app.getHttpServer()).get('/rss').expect(200).expect('Content-Type', /xml/).expect('<rss/>')
     })
 
     it('repassa query params para listAsXml', async () => {
-      await request(app.getHttpServer())
-        .get('/rss?isScan=false&term=naruto')
-        .expect(200)
+      await request(app.getHttpServer()).get('/rss?isScan=false&term=naruto').expect(200)
       expect(mockRssService.listAsXml).toHaveBeenCalledWith(
-        expect.objectContaining({ isScan: 'false', term: 'naruto' }),
+        expect.objectContaining({ isScan: 'false', term: 'naruto' })
       )
     })
   })
@@ -57,9 +52,7 @@ describe('RssController (integration)', () => {
 
     it('repassa query params para list', async () => {
       await request(app.getHttpServer()).get('/rss/json?term=one+piece').expect(200)
-      expect(mockRssService.list).toHaveBeenCalledWith(
-        expect.objectContaining({ term: 'one piece' }),
-      )
+      expect(mockRssService.list).toHaveBeenCalledWith(expect.objectContaining({ term: 'one piece' }))
     })
   })
 
@@ -71,10 +64,7 @@ describe('RssController (integration)', () => {
 
   describe('GET /rss/amount', () => {
     it('retorna 200 com { total: 0 }', async () => {
-      await request(app.getHttpServer())
-        .get('/rss/amount')
-        .expect(200)
-        .expect({ total: 0 })
+      await request(app.getHttpServer()).get('/rss/amount').expect(200).expect({ total: 0 })
     })
   })
 
@@ -87,15 +77,12 @@ describe('RssController (integration)', () => {
       magnet: HEX_MAGNET,
       pubDate: '2026-10-05T12:00:00.000Z',
     }
-    const post = (body: Record<string, unknown>) =>
-      request(app.getHttpServer()).post('/rss').send(body)
+    const post = (body: Record<string, unknown>) => request(app.getHttpServer()).post('/rss').send(body)
 
     it('POST /rss retorna 201 com o item criado', async () => {
       mockRssService.create.mockResolvedValue(created)
 
-      await post({ title: '  [SubsPlease] Frieren - 01 (1080p)  ', magnet: HEX_MAGNET })
-        .expect(201)
-        .expect(created)
+      await post({ title: '  [SubsPlease] Frieren - 01 (1080p)  ', magnet: HEX_MAGNET }).expect(201).expect(created)
       expect(mockRssService.create).toHaveBeenCalledWith({
         title: '[SubsPlease] Frieren - 01 (1080p)',
         magnet: HEX_MAGNET,
@@ -103,12 +90,7 @@ describe('RssController (integration)', () => {
     })
 
     it('POST /rss rejeita magnet fora do formato', async () => {
-      const invalid = [
-        'http://x',
-        'magnet:?xt=urn:btih:abc',
-        `magnet:?xt=urn:sha1:${'a'.repeat(40)}`,
-        '',
-      ]
+      const invalid = ['http://x', 'magnet:?xt=urn:btih:abc', `magnet:?xt=urn:sha1:${'a'.repeat(40)}`, '']
       for (const magnet of invalid) {
         const response = await post({ title: 'Frieren', magnet }).expect(400)
         expect(JSON.stringify(response.body.message)).toContain('magnet')
@@ -140,9 +122,7 @@ describe('RssController (integration)', () => {
     })
 
     it('POST /rss retorna 409 para título duplicado', async () => {
-      mockRssService.create.mockRejectedValue(
-        new ConflictException('Torrent with title Frieren already exists'),
-      )
+      mockRssService.create.mockRejectedValue(new ConflictException('Torrent with title Frieren already exists'))
 
       await post({ title: 'Frieren', magnet: HEX_MAGNET })
         .expect(409)

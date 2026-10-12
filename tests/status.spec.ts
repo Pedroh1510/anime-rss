@@ -1,6 +1,7 @@
-import request from 'supertest'
-import { Test } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
+import { Test } from '@nestjs/testing'
+import request from 'supertest'
+
 import { StatusController } from '../src/domain/status/status.controller'
 import { StatusService } from '../src/domain/status/status.service'
 
@@ -32,10 +33,7 @@ describe('StatusController (integration)', () => {
 
   it('GET /status → 200 com dados de database e qbittorrent', async () => {
     mockStatusService.getStatus.mockResolvedValue(mockStatusResult)
-    await request(app.getHttpServer())
-      .get('/status')
-      .expect(200)
-      .expect(mockStatusResult)
+    await request(app.getHttpServer()).get('/status').expect(200).expect(mockStatusResult)
   })
 
   it('GET /status → 400 quando database retorna erro', async () => {
@@ -43,8 +41,6 @@ describe('StatusController (integration)', () => {
       database: { error: 'connection refused' },
       qbittorrent: { version: '5.0.0', apiVersion: '2.9' },
     })
-    await request(app.getHttpServer())
-      .get('/status')
-      .expect(400)
+    await request(app.getHttpServer()).get('/status').expect(400)
   })
 })

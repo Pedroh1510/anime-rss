@@ -1,21 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import XMLBuilder from 'fast-xml-builder';
-import { XMLParser } from 'fast-xml-parser';
-import { DateFormatter } from '../../utils/date-formatter';
+import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import XMLBuilder from 'fast-xml-builder'
+import { XMLParser } from 'fast-xml-parser'
+
+import { DateFormatter } from '../../utils/date-formatter'
 
 @Injectable()
 export class XmlService {
   constructor(private readonly config: ConfigService) {}
 
   parserToJson(xml: string | null | undefined): object {
-    if (xml === null || xml === undefined) return {};
-    const instance = new XMLParser();
-    return instance.parse(xml);
+    if (xml === null || xml === undefined) return {}
+    const instance = new XMLParser()
+    return instance.parse(xml)
   }
 
   private makeBody(itens: any[]): object {
-    const port = this.config.get('port', 3033);
+    const port = this.config.get('port', 3033)
     return {
       rss: {
         '@_xmlns:atom': 'http://www.w3.org/2005/Atom',
@@ -34,11 +35,23 @@ export class XmlService {
           item: itens,
         },
       },
-    };
+    }
   }
 
-  private makeItem({ magnet, page, pubDate, title, id }: { magnet: string; page: string; pubDate: Date | string; title: string; id: any }): object {
-    const dateFormatted = DateFormatter.format(pubDate, 'ddd, DD MMM YYYY HH:mm:ss -0000');
+  private makeItem({
+    magnet,
+    page,
+    pubDate,
+    title,
+    id,
+  }: {
+    magnet: string
+    page: string
+    pubDate: Date | string
+    title: string
+    id: any
+  }): object {
+    const dateFormatted = DateFormatter.format(pubDate, 'ddd, DD MMM YYYY HH:mm:ss -0000')
     return {
       title,
       link: magnet,
@@ -55,11 +68,11 @@ export class XmlService {
       'nyaa:trusted': 'No',
       'nyaa:remake': 'No',
       description: '<a href="https://nyaa.si/view/1741283">#1741283</a>',
-    };
+    }
   }
 
   buildToRss({ items }: { items: any[] }): string {
-    const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
-    return builder.build(this.makeBody(items.map((item) => this.makeItem({ ...item }))));
+    const builder = new XMLBuilder({ ignoreAttributes: false, format: true })
+    return builder.build(this.makeBody(items.map((item) => this.makeItem({ ...item }))))
   }
 }

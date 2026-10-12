@@ -1,4 +1,4 @@
-import type { Config } from 'jest';
+import type { Config } from 'jest'
 
 const config: Config = {
   projects: [
@@ -43,6 +43,6 @@ const config: Config = {
   coverageThreshold: {
     global: { lines: 76, functions: 25, branches: 35, statements: 40 },
   },
-};
+}
 
-export default config;
+export default config

@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common'
 import { BullModule } from '@nestjs/bullmq'
+import { Module } from '@nestjs/common'
+
 import { QUEUE_NAMES } from './queue-names'
 import { QueuesSummaryController } from './queues-summary.controller'
 import { QueuesSummaryService } from './queues-summary.service'

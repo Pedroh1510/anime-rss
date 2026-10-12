@@ -1,10 +1,11 @@
+import { getQueueToken } from '@nestjs/bullmq'
+import { MODULE_METADATA, PATH_METADATA } from '@nestjs/common/constants'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { MODULE_METADATA, PATH_METADATA } from '@nestjs/common/constants'
-import { getQueueToken } from '@nestjs/bullmq'
+
 import { AppModule } from '../../app.module'
-import { QueuesModule } from './queues.module'
 import { QueuesSummaryController } from './queues-summary.controller'
+import { QueuesModule } from './queues.module'
 
 describe('QueuesModule', () => {
   it('AppModule expõe GET /queues-summary', () => {

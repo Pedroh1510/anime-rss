@@ -1,11 +1,12 @@
 import { BadRequestException } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
-import { RssService } from './rss.service'
-import { RssRepository } from './rss.repository'
-import { XmlService } from '../shared/xml.service'
-import { TorrentService } from '../shared/torrent.service'
+import { Test, TestingModule } from '@nestjs/testing'
+
 import { ScanJobService } from '../extractor/scan-job.service'
+import { TorrentService } from '../shared/torrent.service'
+import { XmlService } from '../shared/xml.service'
+import { RssRepository } from './rss.repository'
+import { RssService } from './rss.service'
 
 const makeRssRepo = () => ({
   list: jest.fn().mockResolvedValue([]),
