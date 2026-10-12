@@ -57,7 +57,8 @@ export class MoeService {
         })
         return
       }
-      pageTags.map((_: any, item: any) => {
+      // each, not map: the callback only collects links, it returns nothing.
+      pageTags.each((_: any, item: any) => {
         if (item.attribs?.href && item.attribs.href.startsWith('/torrent/')) {
           listVerify.push(item.attribs.href)
         }

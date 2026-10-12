@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import axios from 'axios'
+import parseTorrent, { toMagnetURI } from 'parse-torrent'
 
 // const { default: parseTorrent, toMagnetURI } = require('parse-torrent') as {
 //   default: (input: any) => Promise<any>;
 //   toMagnetURI: (input: any) => string;
 // };
-import parseTorrent, { toMagnetURI } from 'parse-torrent'
 
 @Injectable()
 export class TorrentService {
