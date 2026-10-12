@@ -41,7 +41,7 @@ const config: Config = {
     '!src/domain/shared/download-img.service.ts',
   ],
   coverageThreshold: {
-    global: { lines: 40, functions: 25, branches: 35, statements: 40 },
+    global: { lines: 76, functions: 25, branches: 35, statements: 40 },
   },
 };
 
