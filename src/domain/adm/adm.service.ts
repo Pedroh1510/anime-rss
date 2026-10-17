@@ -3,6 +3,7 @@ import { PassThrough, Readable, Writable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
 import { BittorrentService } from '../../infra/service/bittorrent.service'
+import { countPipelineEvent } from '../../infra/telemetry/business'
 import { DateFormatter } from '../../utils/date-formatter'
 import { ScanTtlRepository } from '../extractor/repository/scan-ttl.repository'
 import { CsvService } from '../shared/csv.service'
@@ -27,8 +28,14 @@ export class AdmService {
     for (const torrent of listTorrents) {
       await this.bittorrentService
         .stopTorrents(torrent.hash)
-        .then(() => stopped.push(torrent))
-        .catch((e: any) => this.logger.error(`erro ao parar torrent ${torrent.name}: ${e.message}`))
+        .then(() => {
+          stopped.push(torrent)
+          countPipelineEvent('rss.torrents.cleaned', { source: 'qbittorrent', result: 'ok' })
+        })
+        .catch((e: any) => {
+          countPipelineEvent('rss.torrents.cleaned', { source: 'qbittorrent', result: 'fail' })
+          this.logger.error(`erro ao parar torrent ${torrent.name}: ${e.message}`)
+        })
     }
 
     const maxHours = 2

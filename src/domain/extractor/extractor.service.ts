@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 
+import { countPipelineEvent } from '../../infra/telemetry/business'
 import { TorrentService } from '../shared/torrent.service'
 import { AnimeToshoService } from './anime-tosho.service'
 import { EraiService } from './erai.service'
@@ -23,15 +24,19 @@ export class ExtractorService {
   ) {}
 
   private async executeExtractor(
+    source: string,
     generatorFn: () => AsyncGenerator<{ title: string; link: string; date: Date }>
   ): Promise<number> {
     let counter = 0
     for await (const item of generatorFn()) {
+      countPipelineEvent('rss.items.fetched', { source, result: 'ok' })
       try {
         await this.torrentService.magnetInfo(item.link)
         await this.repository.save(item)
+        countPipelineEvent('rss.items.saved', { source, result: 'ok' })
         counter++
       } catch (e) {
+        countPipelineEvent('rss.items.saved', { source, result: 'fail' })
         this.logger.warn(`executeExtractor error: ${(e as Error)?.message}`)
       }
     }
@@ -40,21 +45,21 @@ export class ExtractorService {
 
   async scan({ total }: { total?: number }) {
     const results = await Promise.all([
-      this.executeExtractor(() => this.moeService.extractor(total)),
-      this.executeExtractor(() => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor(() => this.animeToshoService.extractor()),
-      this.executeExtractor(() => this.eraiService.extractor()),
+      this.executeExtractor('moe', () => this.moeService.extractor(total)),
+      this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
+      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor()),
+      this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
     this.logger.log(`scan end ${results.reduce((a, b) => a + b, 0)}`)
   }
 
   async scanFull(): Promise<number> {
     const results = await Promise.all([
-      this.executeExtractor(() => this.moeService.extractor()),
-      this.executeExtractor(() => this.moeService.extractorAll()),
-      this.executeExtractor(() => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor(() => this.animeToshoService.extractor()),
-      this.executeExtractor(() => this.eraiService.extractor()),
+      this.executeExtractor('moe', () => this.moeService.extractor()),
+      this.executeExtractor('moe', () => this.moeService.extractorAll()),
+      this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
+      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor()),
+      this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
     return results.reduce((a, b) => a + b, 0)
   }
@@ -62,23 +67,24 @@ export class ExtractorService {
   async extractorRss(query: any, scanAllItems = false) {
     if (!query) return
     await Promise.all([
-      this.executeExtractor(() => this.nyaaService.extractor(query, scanAllItems)),
-      this.executeExtractor(() => this.animeToshoService.extractor(query)),
-      this.executeExtractor(() => this.n8nService.extractor()),
+      this.executeExtractor('nyaa', () => this.nyaaService.extractor(query, scanAllItems)),
+      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor(query)),
+      this.executeExtractor('n8n', () => this.n8nService.extractor()),
     ])
   }
 
   async scanBySite(site: string, filters: any): Promise<number> {
-    const fromTo: Record<string, () => AsyncGenerator<any>> = {
-      nyaa: () => this.nyaaService.extractor(filters, true),
-      tosho: () => this.animeToshoService.extractor(),
-      erai: () => this.eraiService.extractor(),
-      n8n: () => this.n8nService.extractor(),
+    const fromTo: Record<string, { source: string; run: () => AsyncGenerator<any> }> = {
+      nyaa: { source: 'nyaa', run: () => this.nyaaService.extractor(filters, true) },
+      tosho: { source: 'anime-tosho', run: () => this.animeToshoService.extractor() },
+      erai: { source: 'erai', run: () => this.eraiService.extractor() },
+      n8n: { source: 'n8n', run: () => this.n8nService.extractor() },
     }
     // Own keys only: `site` comes from the request, and inherited names like `constructor` would resolve too.
+    // The metric source comes from this table, never from the request.
     const extractor = Object.hasOwn(fromTo, site) ? fromTo[site] : undefined
     if (!extractor) throw new Error('Site not supported or invalid method')
-    return this.executeExtractor(() => extractor())
+    return this.executeExtractor(extractor.source, extractor.run)
   }
 
   async listSeries(site: string) {
@@ -88,6 +94,6 @@ export class ExtractorService {
 
   async scanEps({ link, name, site }: { link: string; name: string; site: string }): Promise<number> {
     if (site !== 'n8n') throw new Error('Site not supported or invalid method')
-    return this.executeExtractor(() => this.n8nService.listEps({ link, name }))
+    return this.executeExtractor('n8n', () => this.n8nService.listEps({ link, name }))
   }
 }

@@ -28,4 +28,4 @@ COPY --from=builder /app/dist ./dist
 ENV PORT=3333
 EXPOSE 3333
 
-CMD ["node", "dist/main"]
+CMD ["node", "--import", "./dist/telemetry.js", "dist/main"]

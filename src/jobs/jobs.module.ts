@@ -6,6 +6,7 @@ import { ExtractorModule } from '../domain/extractor/extractor.module'
 import { AdmAnimeQueueProcessor } from './adm-anime-queue.processor'
 import { AnimeQueueProcessor } from './anime-queue.processor'
 import { QueueSchedulerService } from './queue-scheduler.service'
+import { QueueTelemetryService } from './queue-telemetry.service'
 import { ScanQueueProcessor } from './scan-queue.processor'
 
 @Module({
@@ -14,7 +15,13 @@ import { ScanQueueProcessor } from './scan-queue.processor'
     ExtractorModule,
     AdmModule,
   ],
-  providers: [AnimeQueueProcessor, AdmAnimeQueueProcessor, ScanQueueProcessor, QueueSchedulerService],
+  providers: [
+    AnimeQueueProcessor,
+    AdmAnimeQueueProcessor,
+    ScanQueueProcessor,
+    QueueSchedulerService,
+    QueueTelemetryService,
+  ],
   exports: [QueueSchedulerService],
 })
 export class JobsModule {}
