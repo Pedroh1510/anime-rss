@@ -2,16 +2,17 @@ import 'reflect-metadata'
 import { createBullBoard } from '@bull-board/api'
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { ExpressAdapter } from '@bull-board/express'
-import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { Queue } from 'bullmq'
+import { Logger } from 'nestjs-pino'
 
 import { AppModule } from './app.module'
 import { applyGlobalPipes } from './app.setup'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, { bufferLogs: true })
+  app.useLogger(app.get(Logger))
 
   app.enableCors({ origin: '*' })
   applyGlobalPipes(app)
@@ -43,7 +44,7 @@ async function bootstrap() {
 
   const port = process.env.port || 3033
   await app.listen(port)
-  new Logger('Bootstrap').log(`Server listening on port ${port}`)
+  app.get(Logger).log(`Server listening on port ${port}`)
 }
 
 bootstrap()
