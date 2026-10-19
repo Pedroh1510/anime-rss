@@ -8,7 +8,7 @@ import { Queue } from 'bullmq'
 import { Logger } from 'nestjs-pino'
 
 import { AppModule } from './app.module'
-import { applyGlobalPipes } from './app.setup'
+import { applyGlobalPipes, resolvePort } from './app.setup'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true })
@@ -42,7 +42,7 @@ async function bootstrap() {
   })
   app.use('/queues', boardAdapter.getRouter())
 
-  const port = process.env.port || 3033
+  const port = resolvePort(process.env)
   await app.listen(port)
   app.get(Logger).log(`Server listening on port ${port}`)
 }

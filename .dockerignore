@@ -1,7 +1,14 @@
 node_modules
 dist
-.env*
+coverage
 downloads
-.vscode
+media
+graphify-out
+.git
 .github
+.vscode
+.claude
+.env
+.env.*
 docker-compose.yml
+*.log
