@@ -5,6 +5,7 @@ import { LoggerModule } from 'nestjs-pino'
 
 import { AdmModule } from './domain/adm/adm.module'
 import { ExtractorModule } from './domain/extractor/extractor.module'
+import { HealthModule } from './domain/health/health.module'
 import { QueuesModule } from './domain/queues/queues.module'
 import { RssModule } from './domain/rss/rss.module'
 import { SharedModule } from './domain/shared/shared.module'
@@ -31,6 +32,7 @@ import { JobsModule } from './jobs/jobs.module'
     DatabaseModule,
     SharedModule,
     StatusModule,
+    HealthModule,
     ExtractorModule,
     RssModule,
     AdmModule,
