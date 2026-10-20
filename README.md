@@ -171,31 +171,14 @@ npx jest --config jest.config.ts src/domain/adm/adm.service.spec.ts
 
 ---
 
-## Deploy with Docker
+## Deploy
 
-A pre-built image is available on Docker Hub:
+Production runs on Coolify, which builds this `Dockerfile` from `main` after CI passes (`.github/workflows/deploy.yml`). No image is published to Docker Hub.
 
-```bash
-docker pull pedroh1510/rss:latest
-```
-
-Run with environment variables:
+Build locally:
 
 ```bash
-docker run -d \
-  -p 3333:3333 \
-  -e DATABASE_URL=postgresql://user:pass@db:5432/anime \
-  -e REDIS=redis://redis:6379 \
-  -e url_torrent=http://qbittorrent:8080 \
-  -e user_torrent=admin \
-  -e pass_torrent=adminadmin \
-  pedroh1510/rss:latest
-```
-
-Or build locally:
-
-```bash
-npm run docker:push
+docker build -t anime-rss .
 ```
 
 ---
