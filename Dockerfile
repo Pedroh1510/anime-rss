@@ -12,8 +12,6 @@ RUN npx prisma generate
 
 COPY . .
 RUN npm run build
-# Generated Prisma client lives in node_modules/.prisma and survives the prune.
-RUN npm prune --omit=dev --silent
 
 # ---
 
@@ -21,8 +19,14 @@ FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=builder --chown=node:node /app/package*.json ./
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+# Fresh prod-only install instead of `npm prune` in the builder: prune hung indefinitely on the
+# Coolify build host (deployment wzlhj3ig8ps0nnktov1bk8fb, 2026-10-19) while passing locally.
+COPY --chown=node:node package*.json .npmrc ./
+RUN npm ci --omit=dev --silent
+# Only prod packages whose install scripts matter; @prisma/client's postinstall would need the prisma CLI (devDep).
+RUN npm rebuild msgpackr-extract protobufjs --foreground-scripts --ignore-scripts=false
+# Generated client (query engine included) comes from the builder, so no second `prisma generate`.
+COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=node:node /app/prisma ./prisma
 COPY --from=builder --chown=node:node /app/dist ./dist
 
