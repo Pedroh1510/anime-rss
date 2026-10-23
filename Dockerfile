@@ -1,5 +1,5 @@
 # Digest pinned so builds are reproducible; Dependabot (docker ecosystem) bumps it.
-FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f AS builder
+FROM node:25-alpine@sha256:bdf2cca6fe3dabd014ea60163eca3f0f7015fbd5c7ee1b0e9ccb4ced6eb02ef4 AS builder
 WORKDIR /app
 
 # .npmrc must be present before install so min-release-age/ignore-scripts/engine-strict apply to the build too.
@@ -15,7 +15,7 @@ RUN npm run build
 
 # ---
 
-FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f AS runner
+FROM node:25-alpine@sha256:bdf2cca6fe3dabd014ea60163eca3f0f7015fbd5c7ee1b0e9ccb4ced6eb02ef4 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
