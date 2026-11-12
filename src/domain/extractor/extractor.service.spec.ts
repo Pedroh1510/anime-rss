@@ -13,7 +13,6 @@ function buildService() {
     { magnetInfo: jest.fn().mockResolvedValue('hash') } as any,
     unusedSource() as any,
     nyaaService as any,
-    unusedSource() as any,
     unusedSource() as any
   )
   return { service, nyaaService }

@@ -10,7 +10,7 @@
 
 ## Features
 
-- Scrapes RSS feeds from **Nyaa**, **Erai-raws**, **AnimeTosho**, and **Moe**
+- Scrapes RSS feeds from **Nyaa**, **Erai-raws**, and **Moe**
 - Processes entries through **BullMQ** queues with retry and concurrency control
 - Manages downloads via **qBittorrent** (add, stop, delete torrents)
 - REST API with **Swagger** documentation
@@ -103,7 +103,7 @@ Copy `.env.example` to your environment file and fill in the values:
 QueueSchedulerService (cron)
     └─→ ScanQueueProcessor
             └─→ ExtractorService
-                    (Nyaa / Erai / AnimeTosho / Moe)
+                    (Nyaa / Erai / Moe)
                         └─→ AnimeQueueProcessor
                                 └─→ BittorrentService
                                         └─→ qBittorrent (download)

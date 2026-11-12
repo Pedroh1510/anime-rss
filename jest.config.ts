@@ -32,7 +32,6 @@ const config: Config = {
     'src/utils/**/*.ts',
     '!src/**/*.spec.ts',
     '!src/**/index.ts',
-    '!src/domain/extractor/anime-tosho.service.ts',
     '!src/domain/extractor/erai.service.ts',
     '!src/domain/extractor/moe.service.ts',
     '!src/domain/extractor/n8n.service.ts',

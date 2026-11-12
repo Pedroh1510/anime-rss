@@ -1,7 +1,6 @@
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 
-import { AnimeToshoService } from './anime-tosho.service'
 import { EraiService } from './erai.service'
 import { ExtractorController } from './extractor.controller'
 import { ExtractorRepository } from './extractor.repository'
@@ -21,7 +20,6 @@ import { ScanJobService } from './scan-job.service'
     ScanTtlRepository,
     MoeService,
     NyaaService,
-    AnimeToshoService,
     EraiService,
   ],
   exports: [ScanJobService, ExtractorService],

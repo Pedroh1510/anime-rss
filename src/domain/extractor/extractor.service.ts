@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common'
 
 import { countPipelineEvent } from '../../infra/telemetry/business'
 import { TorrentService } from '../shared/torrent.service'
-import { AnimeToshoService } from './anime-tosho.service'
 import { EraiService } from './erai.service'
 import { ExtractorRepository } from './extractor.repository'
 import { MoeService } from './moe.service'
@@ -17,7 +16,6 @@ export class ExtractorService {
     private readonly torrentService: TorrentService,
     private readonly moeService: MoeService,
     private readonly nyaaService: NyaaService,
-    private readonly animeToshoService: AnimeToshoService,
     private readonly eraiService: EraiService
   ) {}
 
@@ -45,7 +43,6 @@ export class ExtractorService {
     const results = await Promise.all([
       this.executeExtractor('moe', () => this.moeService.extractor(total)),
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor()),
       this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
     this.logger.log(`scan end ${results.reduce((a, b) => a + b, 0)}`)
@@ -56,7 +53,6 @@ export class ExtractorService {
       this.executeExtractor('moe', () => this.moeService.extractor()),
       this.executeExtractor('moe', () => this.moeService.extractorAll()),
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor()),
       this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
     return results.reduce((a, b) => a + b, 0)
@@ -64,16 +60,12 @@ export class ExtractorService {
 
   async extractorRss(query: any, scanAllItems = false) {
     if (!query) return
-    await Promise.all([
-      this.executeExtractor('nyaa', () => this.nyaaService.extractor(query, scanAllItems)),
-      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor(query)),
-    ])
+    await Promise.all([this.executeExtractor('nyaa', () => this.nyaaService.extractor(query, scanAllItems))])
   }
 
   async scanBySite(site: string, filters: any): Promise<number> {
     const fromTo: Record<string, { source: string; run: () => AsyncGenerator<any> }> = {
       nyaa: { source: 'nyaa', run: () => this.nyaaService.extractor(filters, true) },
-      tosho: { source: 'anime-tosho', run: () => this.animeToshoService.extractor() },
       erai: { source: 'erai', run: () => this.eraiService.extractor() },
     }
     // Own keys only: `site` comes from the request, and inherited names like `constructor` would resolve too.
