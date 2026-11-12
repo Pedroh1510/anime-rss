@@ -7,7 +7,6 @@ import { ExtractorController } from './extractor.controller'
 import { ExtractorRepository } from './extractor.repository'
 import { ExtractorService } from './extractor.service'
 import { MoeService } from './moe.service'
-import { N8nService } from './n8n.service'
 import { NyaaService } from './nyaa.service'
 import { ScanTtlRepository } from './repository/scan-ttl.repository'
 import { ScanJobService } from './scan-job.service'
@@ -24,7 +23,6 @@ import { ScanJobService } from './scan-job.service'
     NyaaService,
     AnimeToshoService,
     EraiService,
-    N8nService,
   ],
   exports: [ScanJobService, ExtractorService],
 })

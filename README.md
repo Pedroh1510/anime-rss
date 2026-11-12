@@ -10,7 +10,7 @@
 
 ## Features
 
-- Scrapes RSS feeds from **Nyaa**, **Erai-raws**, **AnimeTosho**, **Moe**, and **N8N** webhooks
+- Scrapes RSS feeds from **Nyaa**, **Erai-raws**, **AnimeTosho**, and **Moe**
 - Processes entries through **BullMQ** queues with retry and concurrency control
 - Manages downloads via **qBittorrent** (add, stop, delete torrents)
 - REST API with **Swagger** documentation
@@ -87,7 +87,6 @@ Copy `.env.example` to your environment file and fill in the values:
 | `host`                     | Application host                                                               | No       |
 | `DOMAIN`                   | External domain for network configuration                                      | No       |
 | `ERAI`                     | Erai-raws RSS feed URL/token                                                   | No       |
-| `N8N_URL`                  | N8N webhook URL for integration                                                | No       |
 | `PGADMIN_DEFAULT_EMAIL`    | PgAdmin login email (optional, for DB UI)                                      | No       |
 | `PGADMIN_DEFAULT_PASSWORD` | PgAdmin login password                                                         | No       |
 | `TZ`                       | Timezone (default: `America/Sao_Paulo`)                                        | No       |
@@ -104,7 +103,7 @@ Copy `.env.example` to your environment file and fill in the values:
 QueueSchedulerService (cron)
     └─→ ScanQueueProcessor
             └─→ ExtractorService
-                    (Nyaa / Erai / AnimeTosho / Moe / N8N)
+                    (Nyaa / Erai / AnimeTosho / Moe)
                         └─→ AnimeQueueProcessor
                                 └─→ BittorrentService
                                         └─→ qBittorrent (download)

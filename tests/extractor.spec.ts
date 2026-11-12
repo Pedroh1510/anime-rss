@@ -9,8 +9,6 @@ const mockExtractorService = {
   scan: jest.fn().mockResolvedValue(undefined),
   scanFull: jest.fn().mockResolvedValue(5),
   scanBySite: jest.fn().mockResolvedValue(3),
-  listSeries: jest.fn().mockResolvedValue([{ name: 'Naruto' }]),
-  scanEps: jest.fn().mockResolvedValue(12),
 }
 
 describe('ExtractorController (integration)', () => {
@@ -53,30 +51,6 @@ describe('ExtractorController (integration)', () => {
     it('retorna 200 com { total: 3 } para site nyaa', async () => {
       await request(app.getHttpServer()).get('/extractor/nyaa').expect(200).expect({ total: 3 })
       expect(mockExtractorService.scanBySite).toHaveBeenCalledWith('nyaa', expect.any(Object))
-    })
-  })
-
-  describe('GET /extractor/:site/list/series', () => {
-    it('retorna 200 com array de series para site n8n', async () => {
-      await request(app.getHttpServer())
-        .get('/extractor/n8n/list/series')
-        .expect(200)
-        .expect([{ name: 'Naruto' }])
-      expect(mockExtractorService.listSeries).toHaveBeenCalledWith('n8n')
-    })
-  })
-
-  describe('GET /extractor/:site/list/series/eps', () => {
-    it('retorna 200 com { total: 12 } para site n8n', async () => {
-      await request(app.getHttpServer())
-        .get('/extractor/n8n/list/series/eps?name=Naruto&link=http://example.com')
-        .expect(200)
-        .expect({ total: 12 })
-      expect(mockExtractorService.scanEps).toHaveBeenCalledWith({
-        site: 'n8n',
-        name: 'Naruto',
-        link: 'http://example.com',
-      })
     })
   })
 })

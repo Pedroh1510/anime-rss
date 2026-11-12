@@ -7,24 +7,23 @@ async function* oneItem() {
 const unusedSource = () => ({ extractor: jest.fn() })
 
 function buildService() {
-  const n8nService = { extractor: jest.fn(() => oneItem()), listSeries: jest.fn(), listEps: jest.fn() }
+  const nyaaService = { extractor: jest.fn(() => oneItem()) }
   const service = new ExtractorService(
     { save: jest.fn().mockResolvedValue(undefined) } as any,
     { magnetInfo: jest.fn().mockResolvedValue('hash') } as any,
     unusedSource() as any,
+    nyaaService as any,
     unusedSource() as any,
-    unusedSource() as any,
-    unusedSource() as any,
-    n8nService as any
+    unusedSource() as any
   )
-  return { service, n8nService }
+  return { service, nyaaService }
 }
 
 describe('ExtractorService.scanBySite', () => {
   it('scans a supported site', async () => {
-    const { service, n8nService } = buildService()
-    await expect(service.scanBySite('n8n', undefined)).resolves.toBe(1)
-    expect(n8nService.extractor).toHaveBeenCalledTimes(1)
+    const { service, nyaaService } = buildService()
+    await expect(service.scanBySite('nyaa', undefined)).resolves.toBe(1)
+    expect(nyaaService.extractor).toHaveBeenCalledTimes(1)
   })
 
   // CodeQL js/unvalidated-dynamic-method-call (alert #13): inherited Object.prototype names

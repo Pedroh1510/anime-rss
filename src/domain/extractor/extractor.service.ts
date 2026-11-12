@@ -6,7 +6,6 @@ import { AnimeToshoService } from './anime-tosho.service'
 import { EraiService } from './erai.service'
 import { ExtractorRepository } from './extractor.repository'
 import { MoeService } from './moe.service'
-import { N8nService } from './n8n.service'
 import { NyaaService } from './nyaa.service'
 
 @Injectable()
@@ -19,8 +18,7 @@ export class ExtractorService {
     private readonly moeService: MoeService,
     private readonly nyaaService: NyaaService,
     private readonly animeToshoService: AnimeToshoService,
-    private readonly eraiService: EraiService,
-    private readonly n8nService: N8nService
+    private readonly eraiService: EraiService
   ) {}
 
   private async executeExtractor(
@@ -69,7 +67,6 @@ export class ExtractorService {
     await Promise.all([
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(query, scanAllItems)),
       this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor(query)),
-      this.executeExtractor('n8n', () => this.n8nService.extractor()),
     ])
   }
 
@@ -78,22 +75,11 @@ export class ExtractorService {
       nyaa: { source: 'nyaa', run: () => this.nyaaService.extractor(filters, true) },
       tosho: { source: 'anime-tosho', run: () => this.animeToshoService.extractor() },
       erai: { source: 'erai', run: () => this.eraiService.extractor() },
-      n8n: { source: 'n8n', run: () => this.n8nService.extractor() },
     }
     // Own keys only: `site` comes from the request, and inherited names like `constructor` would resolve too.
     // The metric source comes from this table, never from the request.
     const extractor = Object.hasOwn(fromTo, site) ? fromTo[site] : undefined
     if (!extractor) throw new Error('Site not supported or invalid method')
     return this.executeExtractor(extractor.source, extractor.run)
-  }
-
-  async listSeries(site: string) {
-    if (site !== 'n8n') throw new Error('Site not supported or invalid method')
-    return this.n8nService.listSeries()
-  }
-
-  async scanEps({ link, name, site }: { link: string; name: string; site: string }): Promise<number> {
-    if (site !== 'n8n') throw new Error('Site not supported or invalid method')
-    return this.executeExtractor('n8n', () => this.n8nService.listEps({ link, name }))
   }
 }
