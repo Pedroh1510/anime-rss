@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { countPipelineEvent } from '../../infra/telemetry/business'
 import { TorrentService } from '../shared/torrent.service'
 import { EraiService } from './erai.service'
+import { EraiScanJobService } from './erai/erai-scan-job.service'
 import { ExtractorRepository } from './extractor.repository'
 import { MoeService } from './moe.service'
 import { NyaaService } from './nyaa.service'
@@ -16,7 +17,8 @@ export class ExtractorService {
     private readonly torrentService: TorrentService,
     private readonly moeService: MoeService,
     private readonly nyaaService: NyaaService,
-    private readonly eraiService: EraiService
+    private readonly eraiService: EraiService,
+    private readonly eraiScanJob: EraiScanJobService
   ) {}
 
   private async executeExtractor(
@@ -43,8 +45,8 @@ export class ExtractorService {
     const results = await Promise.all([
       this.executeExtractor('moe', () => this.moeService.extractor(total)),
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
+    await this.eraiScanJob.enqueueRecent()
     this.logger.log(`scan end ${results.reduce((a, b) => a + b, 0)}`)
   }
 
@@ -53,20 +55,35 @@ export class ExtractorService {
       this.executeExtractor('moe', () => this.moeService.extractor()),
       this.executeExtractor('moe', () => this.moeService.extractorAll()),
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
+    await this.eraiScanJob.enqueueRecent()
     return results.reduce((a, b) => a + b, 0)
   }
 
   async extractorRss(query: any, scanAllItems = false) {
     if (!query) return
-    await Promise.all([this.executeExtractor('nyaa', () => this.nyaaService.extractor(query, scanAllItems))])
+    await Promise.all([
+      this.executeExtractor('nyaa', () => this.nyaaService.extractor(query, scanAllItems)),
+      this.eraiScanJob.enqueueTerm(typeof query.q === 'string' ? query.q : undefined),
+    ])
+  }
+
+  /**
+   * Runs one Erai request and saves its items; only the rate-limited `Scan erai` worker calls this.
+   * @example await extractorService.runErai('frieren')
+   */
+  async runErai(term?: string): Promise<number> {
+    return this.executeExtractor('erai', () => this.eraiService.extractor(term))
   }
 
   async scanBySite(site: string, filters: any): Promise<number> {
+    // Erai is never called inline: it goes through the rate-limited queue, so nothing is saved yet.
+    if (site === 'erai') {
+      await this.eraiScanJob.enqueueRecent()
+      return 0
+    }
     const fromTo: Record<string, { source: string; run: () => AsyncGenerator<any> }> = {
       nyaa: { source: 'nyaa', run: () => this.nyaaService.extractor(filters, true) },
-      erai: { source: 'erai', run: () => this.eraiService.extractor() },
     }
     // Own keys only: `site` comes from the request, and inherited names like `constructor` would resolve too.
     // The metric source comes from this table, never from the request.

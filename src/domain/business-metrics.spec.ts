@@ -23,3 +23,12 @@ it.each([['rss.items.fetched'], ['rss.items.saved'], ['rss.torrents.cleaned']])(
     expect(points[0].value).toBe(1)
   }
 )
+
+it('counts a source error by source and status', async () => {
+  business.countSourceError({ source: 'erai', status: 'locked' })
+
+  const points = await meters.points('rss.source.errors')
+  expect(points).toHaveLength(1)
+  expect(points[0].attributes).toEqual({ source: 'erai', status: 'locked' })
+  expect(points[0].value).toBe(1)
+})

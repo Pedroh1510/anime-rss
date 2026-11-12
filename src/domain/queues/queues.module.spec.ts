@@ -20,7 +20,7 @@ describe('QueuesModule', () => {
       (dynamicModule: { providers?: { provide: unknown }[] }) =>
         (dynamicModule.providers ?? []).map((provider) => provider.provide)
     )
-    for (const name of ['Anime process', 'Adm Anime', 'Scan process']) {
+    for (const name of ['Anime process', 'Adm Anime', 'Scan process', 'Scan erai']) {
       expect(registered).toContain(getQueueToken(name))
     }
 

@@ -36,12 +36,13 @@ describe('QueuesSummaryController (integration)', () => {
   afterAll(() => app.close())
   afterEach(() => jest.restoreAllMocks())
 
-  it('GET /queues-summary retorna as contagens das 3 filas', async () => {
+  it('GET /queues-summary retorna as contagens das 4 filas', async () => {
     const response = await request(app.getHttpServer()).get('/queues-summary').expect(200)
 
     expect(response.body.map((item: { name: string }) => item.name)).toEqual([
       'Adm Anime',
       'Anime process',
+      'Scan erai',
       'Scan process',
     ])
     for (const { counts } of response.body) {
