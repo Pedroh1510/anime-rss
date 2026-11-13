@@ -47,7 +47,7 @@ describe('QueuesSummaryService', () => {
 
     const summary = await service.summarize()
 
-    expect(summary.map((item) => item.name)).toEqual(['Adm Anime', 'Anime process', 'Scan process'])
+    expect(summary.map((item) => item.name)).toEqual(['Adm Anime', 'Anime process', 'Scan erai', 'Scan process'])
     expect(summary[0].counts).toEqual(COUNTS)
   })
 

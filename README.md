@@ -10,7 +10,7 @@
 
 ## Features
 
-- Scrapes RSS feeds from **Nyaa**, **Erai-raws**, **AnimeTosho**, **Moe**, and **N8N** webhooks
+- Scrapes RSS feeds from **Nyaa**, **Erai-raws**, and **Moe**
 - Processes entries through **BullMQ** queues with retry and concurrency control
 - Manages downloads via **qBittorrent** (add, stop, delete torrents)
 - REST API with **Swagger** documentation
@@ -86,8 +86,10 @@ Copy `.env.example` to your environment file and fill in the values:
 | `pass_torrent`             | qBittorrent password                                                           | Yes      |
 | `host`                     | Application host                                                               | No       |
 | `DOMAIN`                   | External domain for network configuration                                      | No       |
-| `ERAI`                     | Erai-raws RSS feed URL/token                                                   | No       |
-| `N8N_URL`                  | N8N webhook URL for integration                                                | No       |
+| `ERAI_TOKEN`               | Token of the personal Erai-raws feed (`&token=` in the feed URL)               | No       |
+| `ERAI_USER_AGENT`          | User-Agent sent to the Erai feed                                               | No       |
+| `ERAI_RATE_MS`             | Minimum gap between two Erai requests (default `60000`); process env only, `.env` files are ignored | No       |
+| `ERAI_TERM_COOLDOWN_S`     | Seconds before the same term is searched on Erai again (default `86400`)       | No       |
 | `PGADMIN_DEFAULT_EMAIL`    | PgAdmin login email (optional, for DB UI)                                      | No       |
 | `PGADMIN_DEFAULT_PASSWORD` | PgAdmin login password                                                         | No       |
 | `TZ`                       | Timezone (default: `America/Sao_Paulo`)                                        | No       |
@@ -104,10 +106,27 @@ Copy `.env.example` to your environment file and fill in the values:
 QueueSchedulerService (cron)
     └─→ ScanQueueProcessor
             └─→ ExtractorService
-                    (Nyaa / Erai / AnimeTosho / Moe / N8N)
+                    (Nyaa / Moe inline; Erai via the `Scan erai` queue)
                         └─→ AnimeQueueProcessor
                                 └─→ BittorrentService
                                         └─→ qBittorrent (download)
+```
+
+### Erai rate limiting
+
+Every Erai request (hourly scan, `scan-all`, `/extractor/erai`, Sonarr `/rss?q=` searches) is a job in the
+`Scan erai` queue, processed one at a time at most once per `ERAI_RATE_MS`.
+
+- A term is searched at most once per `ERAI_TERM_COOLDOWN_S`; repeated Sonarr searches are dropped.
+- 502 / 403 / 429, or a 2xx that is not RSS, means Erai blocked the client: the whole source is locked
+  for 24h (`erai:locked` in Redis) and every Erai job is dropped until it expires.
+- 500 / 503 / 504 / network errors retry 3 times with exponential backoff; 404 counts as no results.
+- Failures are counted in `rss_source_errors{source,status}` (`locked`, `error`, `not_found`).
+
+Unlock before the 24h expire (only if you know the block is gone):
+
+```bash
+docker exec <redis-container> redis-cli DEL erai:locked
 ```
 
 ### Module Structure
@@ -146,8 +165,6 @@ Queue monitoring dashboard: `http://localhost:3033/queues` (BullBoard).
 | `GET`    | `/extractor/scan`            | Trigger RSS scan          |
 | `GET`    | `/extractor/scan-all`        | Trigger full RSS scan     |
 | `GET`    | `/rss/:site`                 | Get RSS entries by source |
-| `GET`    | `/rss/:site/list/series`     | List series from source   |
-| `GET`    | `/rss/:site/list/series/eps` | List episodes from source |
 
 ---
 

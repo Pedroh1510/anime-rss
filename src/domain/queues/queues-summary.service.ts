@@ -19,9 +19,10 @@ export class QueuesSummaryService {
   constructor(
     @InjectQueue('Anime process') animeQueue: Queue,
     @InjectQueue('Adm Anime') admAnimeQueue: Queue,
-    @InjectQueue('Scan process') scanQueue: Queue
+    @InjectQueue('Scan process') scanQueue: Queue,
+    @InjectQueue('Scan erai') eraiScanQueue: Queue
   ) {
-    this.queues = [animeQueue, admAnimeQueue, scanQueue]
+    this.queues = [animeQueue, admAnimeQueue, scanQueue, eraiScanQueue]
   }
 
   /**

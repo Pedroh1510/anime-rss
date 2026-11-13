@@ -25,3 +25,17 @@ export function countPipelineEvent(name: PipelineEvent, attributes: { source: st
   if (!PIPELINE_EVENTS.includes(name)) return
   counter(name).add(1, { source: attributes.source, result: attributes.result })
 }
+
+/** Why a source request did not yield items; closed domain so the label stays low-cardinality. */
+export type SourceErrorStatus = 'locked' | 'error' | 'not_found'
+
+let sourceErrors: Counter | undefined
+
+/**
+ * Counts one failed source request (exported as rss_source_errors). No alert hangs off it.
+ * @example countSourceError({ source: 'erai', status: 'locked' })
+ */
+export function countSourceError(attributes: { source: string; status: SourceErrorStatus }): void {
+  sourceErrors ??= metrics.getMeter(SERVICE_NAME).createCounter('rss.source.errors')
+  sourceErrors.add(1, { source: attributes.source, status: attributes.status })
+}

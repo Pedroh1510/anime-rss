@@ -37,6 +37,7 @@ async function bootstrap() {
       new BullMQAdapter(new Queue('Anime process', { connection })),
       new BullMQAdapter(new Queue('Adm Anime', { connection })),
       new BullMQAdapter(new Queue('Scan process', { connection })),
+      new BullMQAdapter(new Queue('Scan erai', { connection })),
     ],
     serverAdapter: boardAdapter,
   })

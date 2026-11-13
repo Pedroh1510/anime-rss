@@ -2,11 +2,10 @@ import { Injectable, Logger } from '@nestjs/common'
 
 import { countPipelineEvent } from '../../infra/telemetry/business'
 import { TorrentService } from '../shared/torrent.service'
-import { AnimeToshoService } from './anime-tosho.service'
 import { EraiService } from './erai.service'
+import { EraiScanJobService } from './erai/erai-scan-job.service'
 import { ExtractorRepository } from './extractor.repository'
 import { MoeService } from './moe.service'
-import { N8nService } from './n8n.service'
 import { NyaaService } from './nyaa.service'
 
 @Injectable()
@@ -18,9 +17,8 @@ export class ExtractorService {
     private readonly torrentService: TorrentService,
     private readonly moeService: MoeService,
     private readonly nyaaService: NyaaService,
-    private readonly animeToshoService: AnimeToshoService,
     private readonly eraiService: EraiService,
-    private readonly n8nService: N8nService
+    private readonly eraiScanJob: EraiScanJobService
   ) {}
 
   private async executeExtractor(
@@ -47,9 +45,8 @@ export class ExtractorService {
     const results = await Promise.all([
       this.executeExtractor('moe', () => this.moeService.extractor(total)),
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor()),
-      this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
+    await this.eraiScanJob.enqueueRecent()
     this.logger.log(`scan end ${results.reduce((a, b) => a + b, 0)}`)
   }
 
@@ -58,9 +55,8 @@ export class ExtractorService {
       this.executeExtractor('moe', () => this.moeService.extractor()),
       this.executeExtractor('moe', () => this.moeService.extractorAll()),
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(undefined, true)),
-      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor()),
-      this.executeExtractor('erai', () => this.eraiService.extractor()),
     ])
+    await this.eraiScanJob.enqueueRecent()
     return results.reduce((a, b) => a + b, 0)
   }
 
@@ -68,32 +64,31 @@ export class ExtractorService {
     if (!query) return
     await Promise.all([
       this.executeExtractor('nyaa', () => this.nyaaService.extractor(query, scanAllItems)),
-      this.executeExtractor('anime-tosho', () => this.animeToshoService.extractor(query)),
-      this.executeExtractor('n8n', () => this.n8nService.extractor()),
+      this.eraiScanJob.enqueueTerm(typeof query.q === 'string' ? query.q : undefined),
     ])
   }
 
+  /**
+   * Runs one Erai request and saves its items; only the rate-limited `Scan erai` worker calls this.
+   * @example await extractorService.runErai('frieren')
+   */
+  async runErai(term?: string): Promise<number> {
+    return this.executeExtractor('erai', () => this.eraiService.extractor(term))
+  }
+
   async scanBySite(site: string, filters: any): Promise<number> {
+    // Erai is never called inline: it goes through the rate-limited queue, so nothing is saved yet.
+    if (site === 'erai') {
+      await this.eraiScanJob.enqueueRecent()
+      return 0
+    }
     const fromTo: Record<string, { source: string; run: () => AsyncGenerator<any> }> = {
       nyaa: { source: 'nyaa', run: () => this.nyaaService.extractor(filters, true) },
-      tosho: { source: 'anime-tosho', run: () => this.animeToshoService.extractor() },
-      erai: { source: 'erai', run: () => this.eraiService.extractor() },
-      n8n: { source: 'n8n', run: () => this.n8nService.extractor() },
     }
     // Own keys only: `site` comes from the request, and inherited names like `constructor` would resolve too.
     // The metric source comes from this table, never from the request.
     const extractor = Object.hasOwn(fromTo, site) ? fromTo[site] : undefined
     if (!extractor) throw new Error('Site not supported or invalid method')
     return this.executeExtractor(extractor.source, extractor.run)
-  }
-
-  async listSeries(site: string) {
-    if (site !== 'n8n') throw new Error('Site not supported or invalid method')
-    return this.n8nService.listSeries()
-  }
-
-  async scanEps({ link, name, site }: { link: string; name: string; site: string }): Promise<number> {
-    if (site !== 'n8n') throw new Error('Site not supported or invalid method')
-    return this.executeExtractor('n8n', () => this.n8nService.listEps({ link, name }))
   }
 }
